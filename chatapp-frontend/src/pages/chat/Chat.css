@@ -1,0 +1,20 @@
+.chat-container {
+    display: flex;
+    height: 100vh;
+    background: #b0c4de; /* Exact blue-gray background */
+  }
+  
+  @media (max-width: 768px) {
+    .chat-container {
+      flex-direction: column;
+    }
+  
+    .sidebar {
+      width: 100%;
+    }
+  
+    .chat-window {
+      width: 100%;
+    }
+  }
+  

@@ -1,0 +1,36 @@
+.sidebar {
+    width: 30%;
+    background: white;
+    padding: 10px;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .logo {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .search-bar {
+    margin-bottom: 10px;
+  }
+  
+  .chat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+  }
+  
+  .chat-item:hover {
+    background: #f1f1f1;
+  }
+  
+  .chat-time {
+    font-size: 12px;
+    color: gray;
+  }
+  
