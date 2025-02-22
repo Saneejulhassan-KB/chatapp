@@ -18,12 +18,12 @@ function Chat() {
     const userData = JSON.parse(localStorage.getItem("user"));
     if (userData) {
       setUserId(userData.id);
-      socket.connect(); // ✅ Connect only when component mounts
+      socket.connect(); //Connect only when component mounts
       socket.emit("join", userData.id);
     }
 
     return () => {
-      socket.disconnect(); // ✅ Disconnect when unmounting
+      socket.disconnect(); //Disconnect when unmounting
     };
   }, []);
 
@@ -35,7 +35,7 @@ function Chat() {
         .then((response) => setMessages(response.data))
         .catch((error) => console.error("Error fetching messages", error));
     }
-  }, [selectedUser, userId]); // ✅ Ensure userId is checked
+  }, [selectedUser, userId]); //Ensure userId is checked
 
   // Listen for new messages
   useEffect(() => {
@@ -59,10 +59,10 @@ function Chat() {
         socket.connect(); // Ensure socket connection only happens if user exists
         socket.emit("join", parsedUser.id);
       } catch (error) {
-        console.error("❌ Failed to parse user data from localStorage", error);
+        console.error("Failed to parse user data from localStorage", error);
       }
     } else {
-      console.error("❌ No user found in localStorage");
+      console.error("No user found in localStorage");
       window.location.href = "/login"; // Redirect to login if no user is found
     }
 
@@ -75,7 +75,7 @@ function Chat() {
   const sendMessage = async (messageText) => {
     // Use messageText instead of newMessage
     if (!currentUser?.id || !selectedUser?.id || !messageText.trim()) {
-      console.error("❌ Missing fields:", {
+      console.error("Missing fields:", {
         senderId: currentUser?.id,
         receiverId: selectedUser?.id,
         message: messageText,
@@ -89,13 +89,13 @@ function Chat() {
       message: messageText.trim(),
     };
 
-    console.log("✅ Sending message:", messageData);
+    console.log("Sending message:", messageData);
 
     try {
       await axios.post("http://localhost:3001/messages", messageData);
       setMessages((prev) => [...prev, messageData]); // Add the message locally
     } catch (error) {
-      console.error("❌ Error sending message:", error);
+      console.error("Error sending message:", error);
     }
   };
 
