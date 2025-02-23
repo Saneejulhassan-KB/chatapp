@@ -189,28 +189,27 @@ const verifyToken = (req, res, next) => {
 
 // ********** Search Users **********
 app.get("/api/search", (req, res) => {
-  const { query } = req.query; // Get the search query from frontend
+  const { query } = req.query;
 
   if (!query) {
-    return res.json([]); // If query is empty, return empty array
+    return res.json([]); // Return empty array if no search input
   }
 
   const searchQuery = `
-        SELECT id, name 
-        FROM register 
-        WHERE name LIKE ? OR phone LIKE ?`; // ✅ Match both name and phone but select only name
+    SELECT id, name 
+    FROM register 
+    WHERE name LIKE ? OR phone LIKE ?`; // Search by name or phone
 
   pool.query(searchQuery, [`%${query}%`, `%${query}%`], (err, results) => {
     if (err) {
       console.error("Search error:", err);
-      return res
-        .status(500)
-        .json({ success: false, message: "Database error" });
+      return res.status(500).json({ success: false, message: "Database error" });
     }
 
-    res.json(results); // ✅ Send only id and name
+    res.json(results);
   });
 });
+
 
 //********** Real-time Messaging with Socket.IO **********
 io.on("connection", (socket) => {
@@ -310,6 +309,41 @@ app.post("/messages", (req, res) => {
     res.status(200).json({ success: true, message: "Message saved successfully" });
   });
 });
+
+
+app.get("/recent-chats/:userId", (req, res) => {
+  const { userId } = req.params;
+  const query = `
+    SELECT 
+        u.id AS chat_user_id, 
+        u.name AS chat_user_name, 
+        m.message, 
+        m.timestamp AS latest_timestamp
+    FROM messages m
+    JOIN register u ON (m.sender_id = u.id OR m.receiver_id = u.id)
+    WHERE (m.sender_id = ? OR m.receiver_id = ?)
+    AND m.timestamp = (
+        SELECT MAX(timestamp) 
+        FROM messages 
+        WHERE (sender_id = u.id OR receiver_id = u.id) 
+        AND (sender_id = ? OR receiver_id = ?)
+    )
+    ORDER BY latest_timestamp DESC;
+  `;
+
+  pool.query(query, [userId, userId, userId, userId], (err, results) => {
+    if (err) {
+      console.error("Error fetching recent chats:", err);
+      return res.status(500).json({ success: false, message: "Database error" });
+    }
+    
+    console.log("Recent Chats Response:", results); // DEBUG
+    res.json(results);
+  });
+});
+
+
+
 
 
 // ********** Start Server **********

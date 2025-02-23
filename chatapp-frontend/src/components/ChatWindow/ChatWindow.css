@@ -1,57 +1,86 @@
 .chat-window {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: #f0f2f5;
-    padding: 10px;
-  }
-  
-  .chat-header {
-    display: flex;
-    align-items: center;
-    background: white;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .user-avatar {
-    border-radius: 50%;
-    margin-right: 10px;
-  }
-  
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-  }
-  
-  .message {
-    max-width: 60%;
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .received {
-    background: white;
-    align-self: flex-start;
-  }
-  
-  .sent {
-    background: #007bff;
-    color: white;
-    align-self: flex-end;
-  }
-  
-  .message-input {
-    display: flex;
-    gap: 5px;
-    background: white;
-    padding: 10px;
-    border-top: 1px solid #ddd;
-  }
-  
-  .message-input input {
-    flex: 1;
-  }
-  
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #f0f2f5;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.user-avatar {
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column; /* Keeps messages in natural order */
+  gap: 5px; /* Space between messages */
+  justify-content: flex-end; /* Aligns all messages at the bottom by default */
+}
+
+.message {
+  max-width: 60%;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: margin 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* Make the message container the reference for positioning */
+}
+
+.received {
+  background: white;
+  align-self: flex-start; /* Align to the left */
+}
+
+.sent {
+  background: #007bff;
+  color: white;
+  align-self: flex-end; /* Align to the right */
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: rgb(255, 255, 255);
+  position: absolute; /* Absolute position relative to the message container */
+  bottom: 5px; /* Place the timestamp near the bottom */
+  right: 5px; /* Align the timestamp to the right corner */
+}
+
+
+.message-input {
+  display: flex;
+  gap: 5px;
+  background: white;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.message-input input {
+  flex: 1;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #6e80a4;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  margin-right: 10px;
+  font-size: 18px;
+}

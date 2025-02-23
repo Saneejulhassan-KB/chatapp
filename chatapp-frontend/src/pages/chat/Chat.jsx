@@ -11,7 +11,19 @@ function Chat() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]); // Store chat messages
   const [userId, setUserId] = useState(null); // Store logged-in user ID
+  const [recentChats, setRecentChats] = useState([]);
   
+
+
+  useEffect(() => {
+    // Fetch recent chats from localStorage
+    const storedRecentChats = localStorage.getItem("recentChats");
+    if (storedRecentChats) {
+      setRecentChats(JSON.parse(storedRecentChats));
+    }
+  }, []); // This will run once on mount
+
+
 
   // Fetch logged-in user details
   useEffect(() => {
@@ -26,6 +38,15 @@ function Chat() {
       socket.disconnect(); //Disconnect when unmounting
     };
   }, []);
+
+  useEffect(() => {
+    if (selectedUser && currentUser) {
+      axios
+        .get(`http://localhost:3001/messages/${currentUser.id}/${selectedUser.id}`)
+        .then((response) => setMessages(response.data))
+        .catch((error) => console.error("Error fetching messages", error));
+    }
+  }, [selectedUser, currentUser]); //Ensure userId is checked
 
   // Fetch chat history when user selects a contact
   useEffect(() => {
@@ -66,42 +87,78 @@ function Chat() {
       window.location.href = "/login"; // Redirect to login if no user is found
     }
 
+    // Check for selected user in localStorage
+    const storedSelectedUser = localStorage.getItem("selectedUser");
+    if (storedSelectedUser) {
+      setSelectedUser(JSON.parse(storedSelectedUser));
+    }
+
     return () => {
       socket.disconnect();
     };
   }, []);
 
-  // Send message
-  const sendMessage = async (messageText) => {
-    // Use messageText instead of newMessage
-    if (!currentUser?.id || !selectedUser?.id || !messageText.trim()) {
-      console.error("Missing fields:", {
-        senderId: currentUser?.id,
-        receiverId: selectedUser?.id,
-        message: messageText,
-      });
-      return;
+  useEffect(() => {
+    if (selectedUser) {
+      // Store the selected user in localStorage
+      localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
     }
+  }, [selectedUser]); // Update the selected user in localStorage whenever it changes
+
+
+  // Send message
+  // Format the current timestamp to a readable format
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    return `${date.getHours()}:${date.getMinutes() < 10 ? "0" : ""}${date.getMinutes()}`;
+  };
+
+  const sendMessage = async (messageText) => {
+    if (!currentUser?.id || !selectedUser?.id || !messageText.trim()) return;
+
+    const timestamp = new Date().toISOString(); // Add current timestamp
 
     const messageData = {
       senderId: currentUser.id,
       receiverId: selectedUser.id,
       message: messageText.trim(),
+      timestamp: timestamp, // Add current timestamp
+      formattedTimestamp: formatTimestamp(timestamp), // Store formatted timestamp for easy display
     };
-
-    console.log("Sending message:", messageData);
 
     try {
       await axios.post("http://localhost:3001/messages", messageData);
-      setMessages((prev) => [...prev, messageData]); // Add the message locally
+      setMessages((prev) => [...prev, messageData]);
+
+      setRecentChats((prevChats) => {
+        // Remove any existing entry for the selected user
+        const updatedChats = [
+          {
+            chat_user_id: selectedUser.id,
+            chat_user_name: selectedUser.name,
+            message: messageText,
+            timestamp: messageData.timestamp, // Add timestamp to recent chats
+          },
+          ...prevChats.filter((chat) => chat.chat_user_id !== selectedUser.id),
+        ];
+
+        // Store updated chats in localStorage
+        localStorage.setItem("recentChats", JSON.stringify(updatedChats));
+
+        return updatedChats;
+      });
+
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
 
+
+
+
   return (
     <div className="chat-container">
-      <ChatSidebar onSelectUser={setSelectedUser} />
+      <ChatSidebar onSelectUser={setSelectedUser} recentChats={recentChats} setRecentChats={setRecentChats} />
       <ChatWindow
         currentUser={currentUser}
         selectedUser={selectedUser}
